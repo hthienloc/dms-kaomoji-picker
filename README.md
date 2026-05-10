@@ -1,6 +1,6 @@
 # DMS Kaomoji Picker
 
-![Screenshot](screenshot.png)
+<img width="500" src="screenshot.png">
 
 A local, native kaomoji picker plugin for [DankMaterialShell (DMS)](https://github.com/DankMaterialShell/DankMaterialShell). 
 This plugin loads a comprehensive kaomoji database directly from a local JSON file and allows you to fuzzy-search and copy kaomoji to your clipboard natively using DMS's `launcher` interface.
