@@ -123,7 +123,7 @@ Item {
         if (!item || !item._kaomoji) return;
 
         const kaomoji = item._kaomoji;
-        const cmd = "if command -v dms >/dev/null 2>&1; then printf '%s' \"$1\" | setsid dms cl copy; else printf '%s' \"$1\" | wl-copy; fi";
-        Quickshell.execDetached(["sh", "-c", cmd, "copy", kaomoji]);
+        // Native DMS clipboard copy
+        Quickshell.execDetached(["sh", "-c", "printf '%s' \"$1\" | setsid dms cl copy", "copy", kaomoji]);
     }
 }
