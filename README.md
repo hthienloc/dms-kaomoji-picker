@@ -1,37 +1,30 @@
-# DMS Kaomoji Picker
+# Kaomoji Picker
 
-<img width="500" src="screenshot.png">
+Browse and copy kaomoji (Japanese emoticons) directly to your clipboard.
 
-A local, native kaomoji picker plugin for [DankMaterialShell (DMS)](https://github.com/DankMaterialShell/DankMaterialShell). 
-This plugin loads a comprehensive kaomoji database directly from a local JSON file and allows you to fuzzy-search and copy kaomoji to your clipboard natively using DMS's `launcher` interface.
+<img src="screenshot.png" width="500" alt="Screenshot">
 
-## 🚀 Features
+## Install
 
-- **Blazing Fast**: Loads a local JSON database containing thousands of kaomoji.
-- **Fuzzy Search**: Filter kaomoji by typing keywords like `happy`, `bear`, `flip`, or `angry`.
-- **Native Clipboard**: Copies directly to the clipboard using `dms cl copy`.
+[<kbd>Install Now</kbd>](dms://plugin/install/kaomoji-picker)
 
-## 📦 Installation
-
-Link the project folder to your DMS plugins directory:
-
+Or manually:
 ```bash
-ln -s /path/to/dms-kaomoji-picker ~/.config/DankMaterialShell/plugins/kaomojiPicker
-dms ipc plugins reload kaomojiPicker
+git clone https://github.com/hthienloc/dms-kaomoji-picker ~/.config/DankMaterialShell/plugins/kaomojiPicker
 ```
 
-Use `:kj` in the launcher to trigger the picker.
+## Features
 
-## 🛠️ Technical Note: The Empty Icon Trick
+- **3000+ kaomoji** - Comprehensive local database
+- **Fuzzy search** - Filter by tags like `happy`, `sad`, `angry`, `bear`
+- **Native copy** - One click to clipboard
 
-In DMS, if a launcher item's `icon` property is left empty (`""`), the launcher falls back to rendering the first character of the item's name. Since the kaomoji *is* the name (e.g., `(╯°□°）╯`), leaving the icon empty would result in a messy layout where the first character (like `(`) is extracted and displayed as the icon.
+## Usage
 
-To achieve a clean, text-only layout without this fallback, we trick DMS by passing an invisible Braille Blank character (`U+2800`) via the `unicode:` prefix:
-```javascript
-icon: "unicode:\u2800"
-```
-This forces the UI to render the invisible character instead of attempting to extract the first letter of the Kaomoji.
+| Action | Result |
+|--------|--------|
+| Type `:kj` in launcher | Open kaomoji picker |
 
-## 💖 Credits
+## License
 
-- Kaomoji database and core search logic ported from [noctalia-dev/noctalia-plugins](https://github.com/noctalia-dev/noctalia-plugins).
+MIT
