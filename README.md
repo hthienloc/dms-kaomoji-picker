@@ -7,7 +7,7 @@ Browse and copy kaomoji (Japanese emoticons) directly to your clipboard.
 ## Install
 
 ```
-dms://plugin/install/kaomoji-picker
+dms://plugin/install/kaomojiPicker
 ```
 
 Or manually:
