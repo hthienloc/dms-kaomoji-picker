@@ -6,7 +6,7 @@ Browse and copy kaomoji (Japanese emoticons) directly to your clipboard.
 
 ## Install
 
-[<kbd>Install Now</kbd>](dms://plugin/install/kaomoji-picker)
+[**Install Now**](dms://plugin/install/kaomoji-picker)
 
 Or manually:
 ```bash
