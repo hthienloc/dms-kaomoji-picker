@@ -16,9 +16,6 @@ Item {
 
     signal itemsChanged
 
-    // Use Qt.resolvedUrl to get the path relative to this QML file's location.
-    // This is the correct way to locate sibling files in a DMS plugin — pluginService
-    // does not expose a pluginDir property.
     readonly property string dbPath: Qt.resolvedUrl("database.json").toString().replace("file://", "")
 
     FileView {
@@ -26,8 +23,6 @@ Item {
         path: ""
         watchChanges: false
         blockLoading: true
-        // With blockLoading:true, the file is read synchronously when path is set.
-        // We call loader.text() directly in init() rather than relying on onLoaded.
     }
 
     Component.onCompleted: {
@@ -51,7 +46,6 @@ Item {
         console.log("KaomojiPicker: Loading from " + dbPath);
         loader.path = dbPath;
 
-        // blockLoading:true means file is fully read by the time we reach here
         const rawText = loader.text();
         if (!rawText || rawText.length < 2) {
             console.error("KaomojiPicker: File empty or not found at: " + dbPath);
@@ -104,9 +98,6 @@ Item {
                 items.push({
                     name: key,
                     comment: tags,
-                    // Invisible Braille Blank (U+2800): if icon is "" DMS falls back to
-                    // rendering the first character of `name` — which is the kaomoji itself.
-                    // Using an invisible unicode character prevents this unwanted fallback.
                     icon: "unicode:\u2800",
                     executable: true,
                     _kaomoji: key
