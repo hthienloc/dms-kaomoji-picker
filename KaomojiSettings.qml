@@ -48,15 +48,4 @@ PluginSettings {
             visible: pluginData.enableHistory ?? true
         }
     }
-
-    SettingsCard {
-        SectionTitle { text: "Behavior" }
-
-        ToggleSetting {
-            settingKey: "showHints"
-            label: "Show Hints"
-            description: "Display usage tips in the launcher."
-            defaultValue: true
-        }
-    }
 }

@@ -21,7 +21,6 @@ Item {
     readonly property int resultLimit: pluginService?.loadPluginData("kaomojiPicker", "resultLimit", 50) || 50
     readonly property bool enableHistory: pluginService?.loadPluginData("kaomojiPicker", "enableHistory", true) ?? true
     readonly property int historyLimit: pluginService?.loadPluginData("kaomojiPicker", "historyLimit", 15) || 15
-    readonly property bool showHints: pluginService?.loadPluginData("kaomojiPicker", "showHints", true) ?? true
 
     signal itemsChanged
 
