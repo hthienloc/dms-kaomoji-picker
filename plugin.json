@@ -7,6 +7,7 @@
   "icon": "pets",
   "type": "launcher",
   "component": "./KaomojiPicker.qml",
+  "settings": "./KaomojiSettings.qml",
   "trigger": ":kj",
   "permissions": [
     "settings_read",
