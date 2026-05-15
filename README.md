@@ -6,7 +6,13 @@ Browse and copy kaomoji (Japanese emoticons) directly to your clipboard.
 
 ## Install
 
-```
+**Required:** This plugin requires [dms-common](https://github.com/hthienloc/dms-common) to be installed.
+
+```bash
+# 1. Install shared components
+git clone https://github.com/hthienloc/dms-common ~/.config/DankMaterialShell/plugins/dms-common
+
+# 2. Install this plugin
 dms://plugin/install/kaomojiPicker
 ```
 
