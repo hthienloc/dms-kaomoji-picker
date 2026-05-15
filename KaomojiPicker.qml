@@ -179,7 +179,7 @@ Item {
                     comment: tags,
                     icon: "unicode:\u2800",
                     executable: true,
-                    _kaomoji: k
+                    _kaomoji: key
                 });
                 count++;
             }
