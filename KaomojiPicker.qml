@@ -140,24 +140,51 @@ Item {
         let items = [];
         const lowerQuery = query.toLowerCase().trim();
 
-        // 1. Show History if query is empty
-        if (lowerQuery === "" && enableHistory && history.length > 0) {
-            history.forEach(k => {
-                items.push({
-                    name: k,
-                    comment: "Recently used",
-                    icon: "material:history",
-                    executable: true,
-                    _kaomoji: k
-                });
-            });
+        // 1. Process History (Always prioritized)
+        if (enableHistory && history.length > 0) {
+            let matchingHistory = [];
             
-            items.unshift({
-                name: "Recently Used",
-                icon: "material:star",
-                executable: false,
-                categories: ["Header"]
+            history.forEach(k => {
+                // If searching, check if kaomoji or its tags in DB match
+                let match = false;
+                if (lowerQuery === "") {
+                    match = true;
+                } else {
+                    if (k.toLowerCase().includes(lowerQuery)) {
+                        match = true;
+                    } else {
+                        // Check tags in database for this historical kaomoji
+                        const entry = database[k];
+                        if (entry) {
+                            const newTags = Array.isArray(entry.new_tags) ? entry.new_tags : [];
+                            const oldTags = Array.isArray(entry.original_tags) ? entry.original_tags : [];
+                            const tags = newTags.concat(oldTags).join(", ").toLowerCase();
+                            if (tags.includes(lowerQuery)) match = true;
+                        }
+                    }
+                }
+
+                if (match) {
+                    matchingHistory.push({
+                        name: k,
+                        comment: "Recently used",
+                        icon: "material:history",
+                        executable: true,
+                        _kaomoji: k,
+                        categories: ["History"]
+                    });
+                }
             });
+
+            if (matchingHistory.length > 0) {
+                items.push({
+                    name: "Recently Used",
+                    icon: "material:star",
+                    executable: false,
+                    categories: ["Header", "History"]
+                });
+                items = items.concat(matchingHistory);
+            }
         }
 
         // 2. Search Database
@@ -165,21 +192,22 @@ Item {
         let count = 0;
         
         for (const key in database) {
+            // Avoid duplicates with history already added
+            if (items.some(i => i._kaomoji === key)) continue;
+
             const entry = database[key];
             const newTags = Array.isArray(entry.new_tags) ? entry.new_tags : [];
             const oldTags = Array.isArray(entry.original_tags) ? entry.original_tags : [];
             const tags = newTags.concat(oldTags).join(", ");
 
             if (lowerQuery === "" || tags.toLowerCase().includes(lowerQuery) || key.toLowerCase().includes(lowerQuery)) {
-                // Avoid duplicates with history
-                if (lowerQuery === "" && items.some(i => i._kaomoji === key)) continue;
-
                 items.push({
                     name: key,
                     comment: tags,
                     icon: "unicode:\u2800",
                     executable: true,
-                    _kaomoji: key
+                    _kaomoji: key,
+                    categories: ["Database"]
                 });
                 count++;
             }
