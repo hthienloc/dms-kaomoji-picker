@@ -144,7 +144,7 @@ Item {
         // 1. Process History (Always prioritized newest to oldest)
         let matchingHistory = [];
         if (enableHistory && history.length > 0) {
-            history.forEach(k => {
+            history.forEach((k, index) => {
                 let match = false;
                 if (lowerQuery === "") {
                     match = true;
@@ -167,7 +167,8 @@ Item {
                         name: k,
                         icon: "material:history",
                         executable: true,
-                        _kaomoji: k
+                        _kaomoji: k,
+                        _preScored: 2000 - index // High score, preserves newest-first order
                     });
                 }
             });
@@ -182,6 +183,7 @@ Item {
 
         // 3. Search Database for remaining results
         const limit = root.resultLimit;
+        let dbMatchCount = 0;
         
         for (const key in database) {
             if (items.length >= limit) break;
@@ -200,8 +202,10 @@ Item {
                     comment: tags,
                     icon: "unicode:\u2800",
                     executable: true,
-                    _kaomoji: key
+                    _kaomoji: key,
+                    _preScored: 1000 - dbMatchCount // Lower score than history, but preserves DB order
                 });
+                dbMatchCount++;
             }
         }
 
