@@ -115,6 +115,7 @@ Item {
         history = list;
         pluginService.savePluginState("kaomojiPicker", "history", list);
         console.log("KaomojiPicker: Saved to history: " + kaomoji);
+        itemsChanged(); // Force immediate UI refresh
     }
 
     function getItems(query) {
@@ -140,45 +141,68 @@ Item {
         let items = [];
         const lowerQuery = query.toLowerCase().trim();
 
-        // 1. If query is empty, show ONLY history items
-        if (lowerQuery === "") {
-            if (enableHistory && history.length > 0) {
-                history.forEach(k => {
-                    items.push({
+        // 1. Process History (Always prioritized newest to oldest)
+        let matchingHistory = [];
+        if (enableHistory && history.length > 0) {
+            history.forEach(k => {
+                let match = false;
+                if (lowerQuery === "") {
+                    match = true;
+                } else {
+                    if (k.toLowerCase().includes(lowerQuery)) {
+                        match = true;
+                    } else {
+                        const entry = database[k];
+                        if (entry) {
+                            const tags = (Array.isArray(entry.new_tags) ? entry.new_tags : [])
+                                         .concat(Array.isArray(entry.original_tags) ? entry.original_tags : [])
+                                         .join(", ").toLowerCase();
+                            if (tags.includes(lowerQuery)) match = true;
+                        }
+                    }
+                }
+
+                if (match) {
+                    matchingHistory.push({
                         name: k,
                         icon: "material:history",
                         executable: true,
                         _kaomoji: k
                     });
-                });
-            }
-            return items;
+                }
+            });
         }
 
-        // 2. If searching, show DB results (swap icon if in history)
+        if (lowerQuery === "") {
+            return matchingHistory;
+        }
+
+        // 2. Add history matches first
+        items = matchingHistory;
+
+        // 3. Search Database for remaining results
         const limit = root.resultLimit;
-        let count = 0;
         
         for (const key in database) {
+            if (items.length >= limit) break;
+            
+            // Skip if already in history list (avoid duplicates)
+            if (items.some(i => i._kaomoji === key)) continue;
+
             const entry = database[key];
-            const newTags = Array.isArray(entry.new_tags) ? entry.new_tags : [];
-            const oldTags = Array.isArray(entry.original_tags) ? entry.original_tags : [];
-            const tags = newTags.concat(oldTags).join(", ");
+            const tags = (Array.isArray(entry.new_tags) ? entry.new_tags : [])
+                         .concat(Array.isArray(entry.original_tags) ? entry.original_tags : [])
+                         .join(", ");
 
             if (tags.toLowerCase().includes(lowerQuery) || key.toLowerCase().includes(lowerQuery)) {
-                const inHistory = history.indexOf(key) >= 0;
-                
                 items.push({
                     name: key,
                     comment: tags,
-                    icon: inHistory ? "material:history" : "unicode:\u2800",
+                    icon: "unicode:\u2800",
                     executable: true,
                     _kaomoji: key
                 });
-                count++;
             }
-
-            if (count >= limit) break;
         }
 
         return items;
