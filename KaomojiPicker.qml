@@ -18,14 +18,33 @@ Item {
     // History state
     property var history: []
 
-    // Config from settings
-    readonly property int resultLimit: pluginService?.loadPluginData("kaomojiPicker", "resultLimit", 50) || 50
-    readonly property bool enableHistory: pluginService?.loadPluginData("kaomojiPicker", "enableHistory", true) ?? true
-    readonly property int historyLimit: pluginService?.loadPluginData("kaomojiPicker", "historyLimit", 15) || 15
+    // Config state
+    property int resultLimit: 50
+    property bool enableHistory: true
+    property int historyLimit: 15
 
     signal itemsChanged
 
     readonly property string dbPath: Qt.resolvedUrl("database.json").toString().replace("file://", "")
+
+    function updateConfigs() {
+        if (!pluginService) return;
+        trigger = pluginService.loadPluginData("kaomojiPicker", "trigger", ":kj");
+        resultLimit = pluginService.loadPluginData("kaomojiPicker", "resultLimit", 50);
+        enableHistory = pluginService.loadPluginData("kaomojiPicker", "enableHistory", true);
+        historyLimit = pluginService.loadPluginData("kaomojiPicker", "historyLimit", 15);
+        console.log("KaomojiPicker: Configs updated (History: " + enableHistory + ")");
+    }
+
+    Connections {
+        target: pluginService
+        function onPluginDataChanged(id) {
+            if (id === "kaomojiPicker") updateConfigs();
+        }
+        function onPluginStateChanged(id) {
+            if (id === "kaomojiPicker") loadHistory();
+        }
+    }
 
     FileView {
         id: loader
@@ -36,7 +55,7 @@ Item {
 
     Component.onCompleted: {
         if (pluginService) {
-            trigger = pluginService.loadPluginData("kaomojiPicker", "trigger", ":kj");
+            updateConfigs();
             loadHistory();
             init();
         }
@@ -44,7 +63,7 @@ Item {
 
     onPluginServiceChanged: {
         if (pluginService) {
-            trigger = pluginService.loadPluginData("kaomojiPicker", "trigger", ":kj");
+            updateConfigs();
             loadHistory();
             init();
         }
@@ -78,25 +97,24 @@ Item {
 
     function loadHistory() {
         if (!pluginService) return;
-        history = pluginService.loadPluginState("kaomojiPicker", "history", []);
+        const loaded = pluginService.loadPluginState("kaomojiPicker", "history", []);
+        history = Array.isArray(loaded) ? loaded : [];
+        console.log("KaomojiPicker: History loaded, count: " + history.length);
+        itemsChanged();
     }
 
     function saveToHistory(kaomoji) {
         if (!pluginService || !enableHistory) return;
         
         let list = history.slice();
-        // Remove if already exists to move to top
         let idx = list.indexOf(kaomoji);
         if (idx >= 0) list.splice(idx, 1);
-        
-        // Add to top
         list.unshift(kaomoji);
-        
-        // Trim
         if (list.length > historyLimit) list = list.slice(0, historyLimit);
         
         history = list;
         pluginService.savePluginState("kaomojiPicker", "history", list);
+        console.log("KaomojiPicker: Saved to history: " + kaomoji);
     }
 
     function getItems(query) {
@@ -134,14 +152,12 @@ Item {
                 });
             });
             
-            if (items.length > 0) {
-                items.unshift({
-                    name: "Recently Used",
-                    icon: "material:star",
-                    executable: false,
-                    categories: ["Header"]
-                });
-            }
+            items.unshift({
+                name: "Recently Used",
+                icon: "material:star",
+                executable: false,
+                categories: ["Header"]
+            });
         }
 
         // 2. Search Database
@@ -163,7 +179,7 @@ Item {
                     comment: tags,
                     icon: "unicode:\u2800",
                     executable: true,
-                    _kaomoji: key
+                    _kaomoji: k
                 });
                 count++;
             }
