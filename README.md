@@ -13,7 +13,7 @@ Browse and copy kaomoji (Japanese emoticons) directly to your clipboard.
 git clone https://github.com/hthienloc/dms-common ~/.config/DankMaterialShell/plugins/dms-common
 
 # 2. Install this plugin
-dms://plugin/install/kaomojiPicker
+dms plugins install kaomojiPicker
 ```
 
 Or manually:
