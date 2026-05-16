@@ -6,6 +6,9 @@
   "author": "loccun",
   "icon": "pets",
   "type": "launcher",
+  "capabilities": [
+    "launcher"
+  ],
   "component": "./KaomojiPicker.qml",
   "settings": "./KaomojiSettings.qml",
   "trigger": ":kj",
