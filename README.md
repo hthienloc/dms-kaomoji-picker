@@ -39,7 +39,8 @@ MIT
 
 ## Roadmap / TODO
 
-- [ ] **Category Browsing**: Add support for browsing kaomoji by categories (e.g., happy, sad, animals) directly in the UI.
-- [ ] **Custom Kaomoji**: Allow users to add and manage their own custom kaomoji through the settings.
-- [ ] **Performance Optimization**: Optimize database loading for large `database.json` files to reduce initial startup time.
-- [ ] **Favorites System**: Explicitly mark kaomoji as favorites to pin them to the top of the list independently of usage history.
+- [ ] **Categorical Navigation:** UI for browsing emoticons by mood/type (e.g., Happy, Sad, Animals, Action) instead of just searching.
+- [ ] **Custom Additions:** Ability to save personal/unique emoticons directly from the UI or settings.
+- [ ] **Binary Storage/Indexing:** Migrate from large JSON to a faster indexed format (SQLite or similar) for near-instant search response.
+- [ ] **Favorites & Pinning:** Support for permanent favorites that stay at the top regardless of usage frequency.
+- [ ] **Direct Injection:** Option to paste the selected kaomoji directly into the active window (requires `ydotool` or similar integration).
