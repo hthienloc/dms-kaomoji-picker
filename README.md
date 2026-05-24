@@ -31,7 +31,12 @@ git clone https://github.com/hthienloc/dms-kaomoji-picker ~/.config/DankMaterial
 
 | Action | Result |
 |--------|--------|
-| Type `:kj` in launcher | Open kaomoji picker |
+| Type `kj` in launcher | Open kaomoji picker |
+| Right-click on kaomoji | Pin / Unpin / Remove from history |
+
+## Requirements
+
+- `wtype` - Simulated Wayland keystrokes for Paste on Select (Optional)
 
 ## License
 
@@ -42,5 +47,5 @@ MIT
 - [ ] **Categorical Navigation:** UI for browsing emoticons by mood/type (e.g., Happy, Sad, Animals, Action) instead of just searching.
 - [ ] **Custom Additions:** Ability to save personal/unique emoticons directly from the UI or settings.
 - [ ] **Binary Storage/Indexing:** Migrate from large JSON to a faster indexed format (SQLite or similar) for near-instant search response.
-- [ ] **Favorites & Pinning:** Support for permanent favorites that stay at the top regardless of usage frequency.
-- [ ] **Direct Injection:** Option to paste the selected kaomoji directly into the active window (requires `ydotool` or similar integration).
+- [x] **Favorites & Pinning:** Support for permanent favorites that stay at the top regardless of usage frequency.
+- [x] **Direct Injection:** Option to paste the selected kaomoji directly into the active window (utilizes `wtype` / `ydotool` / `xdotool`).

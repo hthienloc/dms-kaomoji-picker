@@ -2,7 +2,7 @@
   "id": "kaomojiPicker",
   "name": "Kaomoji Picker",
   "description": "Local kaomoji picker for DMS",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "author": "loccun",
   "icon": "pets",
   "type": "launcher",
@@ -11,8 +11,9 @@
   ],
   "component": "./KaomojiPicker.qml",
   "settings": "./KaomojiSettings.qml",
-  "trigger": ":kj",
+  "trigger": "kj",
   "permissions": [
+    "shell_execute",
     "settings_read",
     "settings_write"
   ]

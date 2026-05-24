@@ -18,9 +18,9 @@ PluginSettings {
         StringSetting {
             settingKey: "trigger"
             label: "Trigger Key"
-            description: "The keyword to trigger this launcher (e.g. :kj)"
-            placeholder: ":kj"
-            defaultValue: ":kj"
+            description: "The keyword to trigger this launcher (e.g. kj)"
+            placeholder: "kj"
+            defaultValue: "kj"
         }
 
         SliderSetting {
@@ -30,6 +30,13 @@ PluginSettings {
             minimum: 10
             maximum: 200
             defaultValue: 50
+        }
+
+        ToggleSetting {
+            settingKey: "pasteOnSelect"
+            label: "Paste on Select"
+            description: "Directly paste the selected kaomoji into the active window."
+            defaultValue: true
         }
 
         ToggleSetting {

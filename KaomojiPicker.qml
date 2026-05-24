@@ -8,7 +8,7 @@ Item {
     id: root
 
     property var pluginService: null
-    property string trigger: ":kj"
+    property string trigger: "kj"
 
     // Database state
     property var database: ({})
@@ -17,11 +17,15 @@ Item {
     
     // History state
     property var history: []
+    
+    // Pinned state
+    property var pinned: []
 
     // Config state
     property int resultLimit: 50
     property bool enableHistory: true
     property int historyLimit: 15
+    property bool pasteOnSelect: true
 
     signal itemsChanged
 
@@ -29,11 +33,12 @@ Item {
 
     function updateConfigs() {
         if (!pluginService) return;
-        trigger = pluginService.loadPluginData("kaomojiPicker", "trigger", ":kj");
+        trigger = pluginService.loadPluginData("kaomojiPicker", "trigger", "kj");
         resultLimit = pluginService.loadPluginData("kaomojiPicker", "resultLimit", 50);
         enableHistory = pluginService.loadPluginData("kaomojiPicker", "enableHistory", true);
         historyLimit = pluginService.loadPluginData("kaomojiPicker", "historyLimit", 15);
-        console.log("KaomojiPicker: Configs updated (History: " + enableHistory + ")");
+        pasteOnSelect = pluginService.loadPluginData("kaomojiPicker", "pasteOnSelect", true);
+        console.log("KaomojiPicker: Configs updated (History: " + enableHistory + ", pasteOnSelect: " + pasteOnSelect + ")");
     }
 
     Connections {
@@ -42,7 +47,10 @@ Item {
             if (id === "kaomojiPicker") updateConfigs();
         }
         function onPluginStateChanged(id) {
-            if (id === "kaomojiPicker") loadHistory();
+            if (id === "kaomojiPicker") {
+                loadHistory();
+                loadPinned();
+            }
         }
     }
 
@@ -57,6 +65,7 @@ Item {
         if (pluginService) {
             updateConfigs();
             loadHistory();
+            loadPinned();
             init();
         }
     }
@@ -65,6 +74,7 @@ Item {
         if (pluginService) {
             updateConfigs();
             loadHistory();
+            loadPinned();
             init();
         }
     }
@@ -101,6 +111,72 @@ Item {
         history = Array.isArray(loaded) ? loaded : [];
         console.log("KaomojiPicker: History loaded, count: " + history.length);
         itemsChanged();
+    }
+
+    function loadPinned() {
+        if (!pluginService) return;
+        const loaded = pluginService.loadPluginState("kaomojiPicker", "pinned", []);
+        pinned = Array.isArray(loaded) ? loaded : [];
+        console.log("KaomojiPicker: Pinned loaded, count: " + pinned.length);
+        itemsChanged();
+    }
+
+    function togglePin(kaomoji) {
+        if (!pluginService) return;
+        
+        let list = pinned.slice();
+        let idx = list.indexOf(kaomoji);
+        if (idx >= 0) {
+            list.splice(idx, 1);
+            ToastService?.showInfo("Unpinned: " + kaomoji);
+        } else {
+            list.push(kaomoji);
+            ToastService?.showInfo("Pinned: " + kaomoji);
+        }
+        pinned = list;
+        pluginService.savePluginState("kaomojiPicker", "pinned", list);
+        itemsChanged();
+    }
+
+    function removeFromHistory(kaomoji) {
+        if (!pluginService) return;
+        
+        let list = history.slice();
+        let idx = list.indexOf(kaomoji);
+        if (idx >= 0) {
+            list.splice(idx, 1);
+            history = list;
+            pluginService.savePluginState("kaomojiPicker", "history", list);
+            ToastService?.showInfo("Removed from history: " + kaomoji);
+            itemsChanged();
+        }
+    }
+
+    function getContextMenuActions(item) {
+        if (!item || !item._kaomoji) return [];
+        const kaomoji = item._kaomoji;
+        const isPinned = pinned.includes(kaomoji);
+        const isInHistory = history.includes(kaomoji);
+        
+        const actions = [
+            {
+                icon: isPinned ? "keep_off" : "push_pin",
+                text: isPinned ? "Unpin Kaomoji" : "Pin Kaomoji",
+                action: function() { togglePin(kaomoji); },
+                closeLauncher: false
+            }
+        ];
+        
+        if (isInHistory) {
+            actions.push({
+                icon: "delete",
+                text: "Remove from History",
+                action: function() { removeFromHistory(kaomoji); },
+                closeLauncher: false
+            });
+        }
+        
+        return actions;
     }
 
     function saveToHistory(kaomoji) {
@@ -141,10 +217,46 @@ Item {
         let items = [];
         const lowerQuery = query.toLowerCase().trim();
 
-        // 1. Process History (Always prioritized newest to oldest)
+        // 1. Process Pinned Items (Highest Priority)
+        let matchingPinned = [];
+        if (pinned.length > 0) {
+            pinned.forEach((k, index) => {
+                let match = false;
+                if (lowerQuery === "") {
+                    match = true;
+                } else {
+                    if (k.toLowerCase().includes(lowerQuery)) {
+                        match = true;
+                    } else {
+                        const entry = database[k];
+                        if (entry) {
+                            const tags = (Array.isArray(entry.new_tags) ? entry.new_tags : [])
+                                         .concat(Array.isArray(entry.original_tags) ? entry.original_tags : [])
+                                         .join(", ").toLowerCase();
+                            if (tags.includes(lowerQuery)) match = true;
+                        }
+                    }
+                }
+
+                if (match) {
+                    matchingPinned.push({
+                        name: k,
+                        icon: "material:push_pin",
+                        executable: true,
+                        _kaomoji: k,
+                        _preScored: 3000 - index // Extremely high score
+                    });
+                }
+            });
+        }
+
+        // 2. Process History (Prioritized below Pinned)
         let matchingHistory = [];
         if (enableHistory && history.length > 0) {
             history.forEach((k, index) => {
+                // Skip if already in pinned matches list to avoid duplication
+                if (matchingPinned.some(p => p._kaomoji === k)) return;
+
                 let match = false;
                 if (lowerQuery === "") {
                     match = true;
@@ -168,18 +280,18 @@ Item {
                         icon: "material:history",
                         executable: true,
                         _kaomoji: k,
-                        _preScored: 2000 - index // High score, preserves newest-first order
+                        _preScored: 2000 - index // Preserves history order
                     });
                 }
             });
         }
 
         if (lowerQuery === "") {
-            return matchingHistory;
+            return matchingPinned.concat(matchingHistory);
         }
 
-        // 2. Add history matches first
-        items = matchingHistory;
+        // Combine Pinned and History first
+        items = matchingPinned.concat(matchingHistory);
 
         // 3. Search Database for remaining results
         const limit = root.resultLimit;
@@ -188,7 +300,7 @@ Item {
         for (const key in database) {
             if (items.length >= limit) break;
             
-            // Skip if already in history list (avoid duplicates)
+            // Skip if already in items (pinned or history) to avoid duplicates
             if (items.some(i => i._kaomoji === key)) continue;
 
             const entry = database[key];
@@ -203,7 +315,7 @@ Item {
                     icon: "unicode:\u2800",
                     executable: true,
                     _kaomoji: key,
-                    _preScored: 1000 - dbMatchCount // Lower score than history, but preserves DB order
+                    _preScored: 1000 - dbMatchCount
                 });
                 dbMatchCount++;
             }
@@ -220,10 +332,17 @@ Item {
         // Save to history
         saveToHistory(kaomoji);
         
-        // Native DMS clipboard copy
-        Quickshell.execDetached(["sh", "-c", "printf '%s' \"$1\" | setsid dms cl copy", "copy", kaomoji]);
+        // Copy to clipboard, and trigger direct paste if enabled
+        let cmd = "printf '%s' \"$1\" | setsid dms cl copy";
+        if (pasteOnSelect) {
+            cmd += " && sleep 0.15 && (command -v wtype >/dev/null && wtype -M ctrl -P v -p v -m ctrl || command -v ydotool >/dev/null && ydotool key 29:1 47:1 47:0 29:0 || command -v xdotool >/dev/null && xdotool key --clearmodifiers ctrl+v)";
+        }
+        
+        Quickshell.execDetached(["sh", "-c", cmd, "copy_paste", kaomoji]);
         
         // Feedback
-        ToastService?.showInfo("Copied to clipboard: " + kaomoji);
+        if (!pasteOnSelect) {
+            ToastService?.showInfo("Copied to clipboard: " + kaomoji);
+        }
     }
 }
