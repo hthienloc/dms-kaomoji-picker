@@ -2,31 +2,27 @@ import QtQuick
 import qs.Common
 import qs.Widgets
 import qs.Modules.Plugins
-import "../dms-common"
+import "./dms-common"
 
 PluginSettings {
     id: root
     pluginId: "kaomojiPicker"
 
-    PluginHeader {
-        title: "Kaomoji Picker Settings"
-    }
-
     SettingsCard {
-        SectionTitle { text: "General" }
+        SectionTitle { text: I18n.tr("General"); icon: "settings" }
 
         StringSetting {
             settingKey: "trigger"
-            label: "Trigger Key"
-            description: "The keyword to trigger this launcher (e.g. kj)"
+            label: I18n.tr("Trigger Key")
+            description: I18n.tr("The keyword to trigger this launcher (e.g. kj)")
             placeholder: "kj"
             defaultValue: "kj"
         }
 
         SliderSetting {
             settingKey: "resultLimit"
-            label: "Result Limit"
-            description: "Maximum number of kaomoji to show in results."
+            label: I18n.tr("Result Limit")
+            description: I18n.tr("Maximum number of kaomoji to show in results.")
             minimum: 10
             maximum: 200
             defaultValue: 50
@@ -34,26 +30,30 @@ PluginSettings {
 
         ToggleSetting {
             settingKey: "pasteOnSelect"
-            label: "Paste on Select"
-            description: "Directly paste the selected kaomoji into the active window."
+            label: I18n.tr("Paste on Select")
+            description: I18n.tr("Directly paste the selected kaomoji into the active window.")
             defaultValue: true
         }
 
         ToggleSetting {
             settingKey: "enableHistory"
-            label: "Enable History"
-            description: "Show recently used kaomoji when the search is empty."
+            label: I18n.tr("Enable History")
+            description: I18n.tr("Show recently used kaomoji when the search is empty.")
             defaultValue: true
         }
 
         SliderSetting {
             settingKey: "historyLimit"
-            label: "History Size"
-            description: "Number of recently used items to keep."
+            label: I18n.tr("History Size")
+            description: I18n.tr("Number of recently used items to keep.")
             minimum: 5
             maximum: 50
             defaultValue: 15
             visible: pluginData.enableHistory ?? true
         }
+    }
+
+    PluginAbout {
+        repoUrl: "https://github.com/hthienloc/dms-kaomoji-picker"
     }
 }

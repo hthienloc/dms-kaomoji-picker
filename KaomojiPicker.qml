@@ -2,7 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.Services
-import "../dms-common"
+import "./dms-common"
 
 Item {
     id: root
@@ -161,7 +161,7 @@ Item {
         const actions = [
             {
                 icon: isPinned ? "keep_off" : "push_pin",
-                text: isPinned ? "Unpin Kaomoji" : "Pin Kaomoji",
+                text: isPinned ? I18n.tr("Unpin Kaomoji") : I18n.tr("Pin Kaomoji"),
                 action: function() { togglePin(kaomoji); },
                 closeLauncher: false
             }
@@ -170,7 +170,7 @@ Item {
         if (isInHistory) {
             actions.push({
                 icon: "delete",
-                text: "Remove from History",
+                text: I18n.tr("Remove from History"),
                 action: function() { removeFromHistory(kaomoji); },
                 closeLauncher: false
             });
