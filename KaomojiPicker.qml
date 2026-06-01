@@ -4,7 +4,7 @@ import Quickshell.Io
 import qs.Services
 import "./dms-common"
 
-Item {
+QtObject {
     id: root
 
     property var pluginService: null
@@ -41,7 +41,7 @@ Item {
         console.log("KaomojiPicker: Configs updated (History: " + enableHistory + ", pasteOnSelect: " + pasteOnSelect + ")");
     }
 
-    Connections {
+    property Connections pluginServiceConnections: Connections {
         target: pluginService
         function onPluginDataChanged(id) {
             if (id === "kaomojiPicker") updateConfigs();
@@ -54,8 +54,7 @@ Item {
         }
     }
 
-    FileView {
-        id: loader
+    property FileView loader: FileView {
         path: ""
         watchChanges: false
         blockLoading: true
