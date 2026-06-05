@@ -14,7 +14,10 @@ StyledText {
     StyledTextMetrics {
         id: reserveMetrics
         isMonospace: root.isMonospace
-        font: root.font
+        font.pixelSize: root.font.pixelSize
+        font.family: root.font.family
+        font.weight: root.font.weight
+        font.hintingPreference: root.font.hintingPreference
         text: root.reserveText
     }
 }
