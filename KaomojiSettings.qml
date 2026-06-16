@@ -52,8 +52,11 @@ PluginSettings {
             id: pasteOnSelect
             settingKey: "pasteOnSelect"
             label: I18n.tr("Paste on Select")
-            description: I18n.tr("Directly paste the selected kaomoji into the active window.")
             defaultValue: true
+        }
+
+        InfoText {
+            text: I18n.tr("Directly paste the selected kaomoji into the active window (Enter to paste, Shift + Enter to copy).")
         }
 
         Separator {}

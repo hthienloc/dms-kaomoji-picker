@@ -345,4 +345,29 @@ QtObject {
             ToastService?.showInfo("Copied to clipboard: " + kaomoji);
         }
     }
+
+    function getPasteText(item) {
+        return item?._kaomoji || null;
+    }
+
+    function getPasteArgs(item) {
+        const kaomoji = getPasteText(item);
+        if (!kaomoji) return null;
+
+        if (pasteOnSelect) {
+            // When pasteOnSelect is true, Shift+Enter means COPY only.
+            // So we copy to clipboard here, close the launcher, and return null to prevent default pasting.
+            saveToHistory(kaomoji);
+            const cmd = "printf '%s' \"$1\" | setsid dms cl copy && dms ipc launcher close";
+            Quickshell.execDetached(["sh", "-c", cmd, "copy", kaomoji]);
+            ToastService?.showInfo("Copied to clipboard: " + kaomoji);
+            return null;
+        }
+
+        // When pasteOnSelect is false, Shift+Enter means PASTE.
+        // We return the command to copy, and let the launcher handle the pasting automatically.
+        saveToHistory(kaomoji);
+        const copyCmd = "printf '%s' \"$1\" | setsid dms cl copy";
+        return ["sh", "-c", copyCmd, "copy", kaomoji];
+    }
 }
